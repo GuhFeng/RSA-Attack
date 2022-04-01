@@ -1,2 +1,1 @@
-*.pdf
-Reference
+./**/__pycache__
