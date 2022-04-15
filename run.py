@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-CS224N 2018-19: Homework 3
-run.py: Run the dependency parser.
-Sahil Chopra <schopra8@stanford.edu>
-"""
 from datetime import datetime
 import os
 import pickle
@@ -109,7 +102,7 @@ def train_for_epoch(parser: Parser, train_data, dev_data, optimizer, loss_func,
 
     print("Average Train Loss: {}".format(loss_meter.avg))
 
-    print("Evaluating on dev set",)
+    print("Evaluating on dev set", )
     parser.model.eval(
     )  # Places model in "eval" mode, i.e. don't apply dropout layer
     dev_UAS, _ = parser.parse(dev_data)
@@ -158,7 +151,7 @@ if __name__ == "__main__":
         print(80 * "=")
         print("Restoring the best model weights found on the dev set")
         parser.model.load_state_dict(torch.load(output_path))
-        print("Final evaluation on test set",)
+        print("Final evaluation on test set", )
         parser.model.eval()
         UAS, dependencies = parser.parse(test_data)
         print("- test UAS: {:.2f}".format(UAS * 100.0))

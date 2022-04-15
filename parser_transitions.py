@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-CS224N 2018-19: Homework 3
-parser_transitions.py: Algorithms for completing partial parsess.
-Sahil Chopra <schopra8@stanford.edu>
-"""
-
 import sys
 
 
