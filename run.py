@@ -111,12 +111,7 @@ def train_for_epoch(parser: Parser, train_data, dev_data, optimizer, loss_func,
 
 
 if __name__ == "__main__":
-    # Note: Set debug to False, when training on entire corpus
-    # debug = True
-    debug = True
-
-    #assert(torch.__version__ == "1.0.1"),  "Please install torch version 1.0.1"
-
+    debug = False
     print(80 * "=")
     print("INITIALIZING")
     print(80 * "=")
@@ -131,7 +126,7 @@ if __name__ == "__main__":
     print(80 * "=")
     print("TRAINING")
     print(80 * "=")
-    output_dir = "models/{:%Y%m%d}/".format(datetime.now())
+    output_dir = "models/"
     output_path = output_dir + "model.weights"
 
     if not os.path.exists(output_dir):
