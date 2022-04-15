@@ -1,12 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-CS224N 2018-19: Homework 3
-parser_transitions.py: Algorithms for completing partial parsess.
-Sahil Chopra <schopra8@stanford.edu>
-"""
-
 import sys
+
 
 class PartialParse(object):
     def __init__(self, sentence):
@@ -30,10 +23,10 @@ class PartialParse(object):
         ###
         ### Note: The root token should be represented with the string "ROOT"
         ###
-
-
+        self.stack = ["ROOT"] + self.sentence[0:1]
+        self.buffer = self.sentence[1:]
+        self.dependencies = []
         ### END YOUR CODE
-
 
     def parse_step(self, transition):
         """Performs a single parse step by applying the given transition to this partial parse
@@ -49,7 +42,15 @@ class PartialParse(object):
         ###         1. Shift
         ###         2. Left Arc
         ###         3. Right Arc
-
+        if transition == "S":
+            self.buffer, self.stack = self.buffer[1:], self.stack + \
+                self.buffer[:1]
+        elif transition == "LA":
+            self.stack, self.dependencies = self.stack[:-2] + self.stack[
+                -1:], self.dependencies + [(self.stack[-1], self.stack[-2])]
+        else:
+            self.stack, self.dependencies = self.stack[:-1], \
+                self.dependencies + [(self.stack[-2], self.stack[-1])]
 
         ### END YOUR CODE
 
@@ -101,20 +102,19 @@ def minibatch_parse(sentences, model, batch_size):
     ###             to remove objects from the `unfinished_parses` list. This will free the underlying memory that
     ###             is being accessed by `partial_parses` and may cause your code to crash.
 
-
     ### END YOUR CODE
 
     return dependencies
 
 
-def test_step(name, transition, stack, buf, deps,
-              ex_stack, ex_buf, ex_deps):
+def test_step(name, transition, stack, buf, deps, ex_stack, ex_buf, ex_deps):
     """Tests that a single parse step returns the expected output"""
     pp = PartialParse([])
     pp.stack, pp.buffer, pp.dependencies = stack, buf, deps
 
     pp.parse_step(transition)
-    stack, buf, deps = (tuple(pp.stack), tuple(pp.buffer), tuple(sorted(pp.dependencies)))
+    stack, buf, deps = (tuple(pp.stack), tuple(pp.buffer),
+                        tuple(sorted(pp.dependencies)))
     assert stack == ex_stack, \
         "{:} test resulted in stack {:}, expected {:}".format(name, stack, ex_stack)
     assert buf == ex_buf, \
@@ -129,11 +129,15 @@ def test_parse_step():
     Warning: these are not exhaustive
     """
     test_step("SHIFT", "S", ["ROOT", "the"], ["cat", "sat"], [],
-              ("ROOT", "the", "cat"), ("sat",), ())
-    test_step("LEFT-ARC", "LA", ["ROOT", "the", "cat"], ["sat"], [],
-              ("ROOT", "cat",), ("sat",), (("cat", "the"),))
-    test_step("RIGHT-ARC", "RA", ["ROOT", "run", "fast"], [], [],
-              ("ROOT", "run",), (), (("run", "fast"),))
+              ("ROOT", "the", "cat"), ("sat", ), ())
+    test_step("LEFT-ARC", "LA", ["ROOT", "the", "cat"], ["sat"], [], (
+        "ROOT",
+        "cat",
+    ), ("sat", ), (("cat", "the"), ))
+    test_step("RIGHT-ARC", "RA", ["ROOT", "run", "fast"], [], [], (
+        "ROOT",
+        "run",
+    ), (), (("run", "fast"), ))
 
 
 def test_parse():
@@ -141,7 +145,8 @@ def test_parse():
     Warning: these are not exhaustive
     """
     sentence = ["parse", "this", "sentence"]
-    dependencies = PartialParse(sentence).parse(["S", "S", "S", "LA", "RA", "RA"])
+    dependencies = PartialParse(sentence).parse(
+        ["S", "S", "S", "LA", "RA", "RA"])
     dependencies = tuple(sorted(dependencies))
     expected = (('ROOT', 'parse'), ('parse', 'sentence'), ('sentence', 'this'))
     assert dependencies == expected,  \
@@ -157,8 +162,8 @@ class DummyModel(object):
     the sentence is "right", "left" if otherwise.
     """
     def predict(self, partial_parses):
-        return [("RA" if pp.stack[1] is "right" else "LA") if len(pp.buffer) == 0 else "S"
-                for pp in partial_parses]
+        return [("RA" if pp.stack[1] is "right" else "LA")
+                if len(pp.buffer) == 0 else "S" for pp in partial_parses]
 
 
 def test_dependencies(name, deps, ex_deps):
@@ -172,30 +177,34 @@ def test_minibatch_parse():
     """Simple tests for the minibatch_parse function
     Warning: these are not exhaustive
     """
-    sentences = [["right", "arcs", "only"],
-                 ["right", "arcs", "only", "again"],
-                 ["left", "arcs", "only"],
-                 ["left", "arcs", "only", "again"]]
+    sentences = [["right", "arcs", "only"], ["right", "arcs", "only", "again"],
+                 ["left", "arcs", "only"], ["left", "arcs", "only", "again"]]
     deps = minibatch_parse(sentences, DummyModel(), 2)
     test_dependencies("minibatch_parse", deps[0],
                       (('ROOT', 'right'), ('arcs', 'only'), ('right', 'arcs')))
     test_dependencies("minibatch_parse", deps[1],
-                      (('ROOT', 'right'), ('arcs', 'only'), ('only', 'again'), ('right', 'arcs')))
+                      (('ROOT', 'right'), ('arcs', 'only'), ('only', 'again'),
+                       ('right', 'arcs')))
     test_dependencies("minibatch_parse", deps[2],
                       (('only', 'ROOT'), ('only', 'arcs'), ('only', 'left')))
     test_dependencies("minibatch_parse", deps[3],
-                      (('again', 'ROOT'), ('again', 'arcs'), ('again', 'left'), ('again', 'only')))
+                      (('again', 'ROOT'), ('again', 'arcs'), ('again', 'left'),
+                       ('again', 'only')))
     print("minibatch_parse test passed!")
 
 
 if __name__ == '__main__':
     args = sys.argv
     if len(args) != 2:
-        raise Exception("You did not provide a valid keyword. Either provide 'part_c' or 'part_d', when executing this script")
+        raise Exception(
+            "You did not provide a valid keyword. Either provide 'part_c' or 'part_d', when executing this script"
+        )
     elif args[1] == "part_c":
         test_parse_step()
         test_parse()
     elif args[1] == "part_d":
         test_minibatch_parse()
     else:
-        raise Exception("You did not provide a valid keyword. Either provide 'part_c' or 'part_d', when executing this script")
+        raise Exception(
+            "You did not provide a valid keyword. Either provide 'part_c' or 'part_d', when executing this script"
+        )
