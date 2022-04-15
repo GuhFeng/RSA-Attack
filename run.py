@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+CS224N 2018-19: Homework 3
+run.py: Run the dependency parser.
+Sahil Chopra <schopra8@stanford.edu>
+"""
 from datetime import datetime
 import os
 import pickle
@@ -9,7 +16,7 @@ import torch
 from tqdm import tqdm
 
 from parser_model import ParserModel
-from utils.parser_utils import minibatches, load_and_preprocess_data, AverageMeter
+from utils.parser_utils import Parser, minibatches, load_and_preprocess_data, AverageMeter
 
 
 # -----------------
@@ -22,16 +29,7 @@ def train(parser,
           batch_size=1024,
           n_epochs=10,
           lr=0.0005):
-    """ Train the neural dependency parser.
 
-    @param parser (Parser): Neural Dependency Parser
-    @param train_data ():
-    @param dev_data ():
-    @param output_path (str): Path to which model weights and results are written.
-    @param batch_size (int): Number of examples in a single batch
-    @param n_epochs (int): Number of training epochs
-    @param lr (float): Learning rate
-    """
     best_dev_UAS = 0
 
     ### YOUR CODE HERE (~2-7 lines)
@@ -43,7 +41,7 @@ def train(parser,
     ###       necessary parameters to tune.
     ### Please see the following docs for support:
     ###     Adam Optimizer: https://pytorch.org/docs/stable/optim.html
-    ###     Cross Entropy Loss: https://pytorch.org/docs/stable/nn.html#crossentropyloss
+    ###     Cross Entropy Loss:
     optimizer = optim.Adam(parser.model.parameters(), lr=lr)
     loss_func = torch.nn.CrossEntropyLoss()
     ### END YOUR CODE
@@ -59,7 +57,7 @@ def train(parser,
         print("")
 
 
-def train_for_epoch(parser, train_data, dev_data, optimizer, loss_func,
+def train_for_epoch(parser: Parser, train_data, dev_data, optimizer, loss_func,
                     batch_size):
     """ Train the neural dependency parser for single epoch.
 
@@ -104,13 +102,14 @@ def train_for_epoch(parser, train_data, dev_data, optimizer, loss_func,
             logits = parser.model.forward(train_x)
             loss = loss_func(logits, train_y)
             loss.backward()
+            optimizer.step()
             ### END YOUR CODE
             prog.update(1)
             loss_meter.update(loss.item())
 
     print("Average Train Loss: {}".format(loss_meter.avg))
 
-    print("Evaluating on dev set", )
+    print("Evaluating on dev set",)
     parser.model.eval(
     )  # Places model in "eval" mode, i.e. don't apply dropout layer
     dev_UAS, _ = parser.parse(dev_data)
@@ -120,10 +119,10 @@ def train_for_epoch(parser, train_data, dev_data, optimizer, loss_func,
 
 if __name__ == "__main__":
     # Note: Set debug to False, when training on entire corpus
+    # debug = True
     debug = True
-    # debug = False
 
-    assert (torch.__version__ == "1.0.0"), "Please install torch version 1.0.0"
+    #assert(torch.__version__ == "1.0.1"),  "Please install torch version 1.0.1"
 
     print(80 * "=")
     print("INITIALIZING")
@@ -159,7 +158,7 @@ if __name__ == "__main__":
         print(80 * "=")
         print("Restoring the best model weights found on the dev set")
         parser.model.load_state_dict(torch.load(output_path))
-        print("Final evaluation on test set", )
+        print("Final evaluation on test set",)
         parser.model.eval()
         UAS, dependencies = parser.parse(test_data)
         print("- test UAS: {:.2f}".format(UAS * 100.0))
