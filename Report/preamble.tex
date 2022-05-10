@@ -1,0 +1,161 @@
+\documentclass[a4paper]{article}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+% gebruikte pakketten %
+%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[dutch]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{subfig}
+\usepackage{mdframed}
+\usepackage{color}
+\usepackage{microtype} 					% Meer esthetische spatiëring letters
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc} 
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem} 
+\usepackage{multicol}
+\usepackage{smartdiagram}
+\usesmartdiagramlibrary{additions}
+\setlist[enumerate]{topsep=0pt} 
+\setlist[description]{topsep=0pt}
+\setlist[itemize]{topsep=0pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% definities van een nieuwe omgeving %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\newcounter{derive}
+\setcounter{derive}{1}
+
+\newenvironment{derive} [2]
+	{\begin{mdframed} [linecolor=violet, linewidth=2, backgroundcolor=magenta!15, leftmargin=0.25cm, rightmargin=0.25cm]
+    \noindent \textcolor{violet}{\textbf{Derivecode}} \textcolor {violet} {\arabic{derive}} \textcolor{violet}{\textrm{(#1)}}
+    \newline \newline \noindent 	\textcolor{blue}
+    {\textrm{#2}}
+    \refstepcounter{derive}
+    \end{mdframed}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% een hele serie eigen definities %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Zn}{\mathbb{Z}_n}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\def \Cscr{{\mathcal C}}
+\def \Bscr{{\mathcal B}}
+\def \Ascr{{\mathcal A}}
+\def \Escr{{\mathcal E}}
+\renewcommand{\Im}{\mathrm{Im}}
+\newcommand{\voorbr}[1]{\langle #1\rangle}
+\newcommand{\abs}[1]{\lvert #1\rvert}
+\renewcommand{\vec}[1]{#1}
+\newcommand{\p}[1]{\left( #1 \right)}
+\newcommand{\pmM}[1]{\left(\begin{smallmatrix} #1 \end{smallmatrix}\right)}
+\newcommand{\pmMr}[1]{\left(\begin{smallmatrix*}[r] #1 \end{smallmatrix*}\right)}
+\newcommand{\pM}[1]{\left(\begin{matrix} #1 \end{matrix}\right)}
+\newcommand{\pMr}[1]{\left(\begin{matrix*}[r] #1 \end{matrix*}\right)}
+\newcommand{\dmM}[1]{\left|\begin{smallmatrix} #1 \end{smallmatrix}\right|}
+\newcommand{\dmMr}[1]{\left|\begin{smallmatrix*}[r] #1 \end{smallmatrix*}\right|}
+\newcommand{\dM}[1]{\left|\begin{matrix} #1 \end{matrix}\right|}
+\newcommand{\dMr}[1]{\left|\begin{matrix*}[r] #1 \end{matrix*}\right|}
+
+%%%%%%%%%%%
+% kleuren %
+%%%%%%%%%%%
+
+\colorlet{steunkleur}{black}
+\colorlet{steunkleurlicht}{steunkleur!30!white}
+\colorlet{steunkleurkader}{steunkleur!7!white}
+
+%%%%%%%%%%%%%%%%%%
+% Kader-stijlen  %
+%%%%%%%%%%%%%%%%%%
+
+\mdfdefinestyle{kaderstijl_rand_licht}%
+{skipabove=10pt,
+skipbelow=1pt,
+linecolor=steunkleurlicht,
+linewidth=0.5pt,
+%backgroundcolor=steunkleurkader,
+innerleftmargin=5pt,
+innerrightmargin=5pt,
+innertopmargin=5pt,
+leftmargin=0cm,
+rightmargin=0cm,
+innerbottommargin=5pt,
+%needspace=30pt,
+}
+
+\mdfdefinestyle{kaderstijl_lrand}%
+{skipabove=7pt,
+skipbelow=0pt,
+rightline=false,
+leftline=true,
+topline=false,
+bottomline=false,
+%backgroundcolor=steunkleurkader,
+linecolor=steunkleurlicht,
+innerleftmargin=5pt,
+innerrightmargin=0pt,
+innertopmargin=5pt,
+innerbottommargin=3pt,
+leftmargin=0cm,
+rightmargin=0cm,
+linewidth=3pt,
+%needspace=30pt
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Theorem-stijlen toekenning %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{stelling}{\color{steunkleur}Stelling}
+\newtheorem{eigenschap}[stelling]{\color{steunkleur}Eigenschap}
+\newtheorem{propositie}[stelling]{\color{steunkleur}Propositie}
+\newtheorem{lemma}[stelling]{\color{steunkleur}Lemma}
+\newtheorem{vraag}[stelling]{\color{steunkleur}Vraag}
+\newtheorem{gevolg}[stelling]{\color{steunkleur}Gevolg}
+
+\theoremstyle{definition}
+\newtheorem{definitie}[stelling]{\color{steunkleur}Definitie}
+\newtheorem{definitie-propositie}[stelling]{\color{steunkleur}Definitie-Propositie}
+\newtheorem{terminologie}[stelling]{\color{steunkleur}Terminologie}
+\newtheorem{bewering}[stelling]{\color{steunkleur}Bewering}
+\newtheorem{voorbeeld}[stelling]{\color{steunkleur}Voorbeeld}
+\newtheorem{constructie}[stelling]{\color{steunkleur}Constructie}
+\newtheorem*{algoritme}{\bfseries\color{steunkleur}ALGORITME}
+\newtheorem {oef} {Oefening}
+\newenvironment {enumoef} {\begin{enumerate}[\rm (a)]} {\end{enumerate}}
+\newenvironment {enumstel} {\begin{enumerate}[\rm (i)]} {\end{enumerate}}
+
+\theoremstyle{remark}
+\newtheorem{opmerking}[stelling]{Opmerking}
+\newtheorem*{opmerking*}{Opmerking}
+\newtheorem{opdracht}[stelling]{Opdracht}
+\newtheorem*{bewijstechniek}{\bfseries Bewijstechniek}
+\newtheorem{opdracht_moeilijk}[stelling]{\bfseries *Opdracht}
+\newtheorem{notatie}[stelling]{Notatie}
+\newtheorem*{notatie*}{Notatie}
+
+%%%%%%%%%%%%%%%%%%%%%
+% Krijgen een kader %
+%%%%%%%%%%%%%%%%%%%%%
+
+\surroundwithmdframed[style=kaderstijl_vol_licht]{stelling}
+\surroundwithmdframed[style=kaderstijl_vol_licht]{lemma}
+\surroundwithmdframed[style=kaderstijl_vol_licht]{eigenschap}
+\surroundwithmdframed[style=kaderstijl_vol_licht]{propositie}
+\surroundwithmdframed[style=kaderstijl_vol_licht]{gevolg}
+\surroundwithmdframed[style=kaderstijl_lrand]{opdracht}
