@@ -1,0 +1,47 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath, amssymb, amscd, amsthm, amsfonts}
+\usepackage{graphicx}
+\usepackage{ctex}[UTF-8]
+\usepackage{algorithmicx}
+\usepackage{hyperref}
+
+\oddsidemargin 0pt
+\evensidemargin 0pt
+\marginparwidth 40pt
+\marginparsep 10pt
+\topmargin -20pt
+\headsep 10pt
+\textheight 8.7in
+\textwidth 6.65in
+\linespread{1.2}
+
+\title{RSA密码破译报告}
+\author{冯古豪 \ \ 2000013175}
+\date{}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\newcommand{\rr}{\mathbb{R}}
+
+\newcommand{\al}{\alpha}
+\DeclareMathOperator{\conv}{conv}
+\DeclareMathOperator{\aff}{aff}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    在这个项目中，我们实现了多种RSA攻击，并最终破解了16组RSA加密的数据。
+\end{abstract}
+
+\section{序言}\label{section-introduction}
+在这个项目中，我们主要实现的攻击方式主要包括：低加密指数攻击，低加密指数广播攻击，维纳攻击，共模攻击，Copper-Smith攻击
+以及基于大整数分解的攻击。其中，我们尝试的大整数分解方式主要包括：费马分解，Pollard-p-1分解，Pollard-$\rho$分解。
+
+\section{攻击原理及实验结果}
+\subsection{低加密指数攻击}
+
+\end{document}
