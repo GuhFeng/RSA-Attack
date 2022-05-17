@@ -21,7 +21,11 @@ def Pollard_Rho(n):
     # 得到 n 的一个因子
     if n == 4:
         return 2
+    cnt=0
     while (1):
+        cnt+=1
+        if cnt>1000000:
+            break
         c = random.randrange(2, n - 1)
         t = gmpy2.mpz(0)
         r = gmpy2.mpz(0)
@@ -43,6 +47,7 @@ def Pollard_Rho(n):
                 return d
             if (t == r):
                 break
+        return 0
 
 
 def task(num):
@@ -51,28 +56,21 @@ def task(num):
     n = gmpy2.mpz(n)
     e = gmpy2.mpz(e)
     c = gmpy2.mpz(c)
-    print("case %d:\nn=%d\ne=%d\nc=%d" % (num, n, e, c))
 
     # 得到 p, q
     p = Pollard_Rho(n)
+    if p==0:
+        return 0
     q = n // p
 
-    from datetime import datetime
-    dt = datetime.now()
     phi = (p - 1) * (q - 1)
 
-    # 输出
-    print("-----------------------------")
-    print("%s | case %d:" % (dt.strftime('time: %Y年%m月%d日 %H:%M:%S'), num))
-    print("phi = %d" % phi)
-
-    print("p = %d  | q = %d" % (p, q))
     # 求 e 关于 phi 的逆元
     d = gmpy2.invert(e, phi)
     # 求解密文
     m = gmpy2.powmod(c, d, n)
     print("m = 0x%X" % m)
-    print("-----------------------------")
+    return hex(m)
 
 
 # 多线程
