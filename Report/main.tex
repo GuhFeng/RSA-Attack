@@ -86,6 +86,7 @@ $$
 即证：$m=m^{ed}\mod n$。记$cd=k\phi(n)+1$，$m$几乎必然与$n$互素，所以由欧拉定理，$m^{\phi(n)}=tn+1$，从而$m=m^{cd} \mod n$
 \end{proof}
 \section{针对低加密数的攻击}
+当RSA加密指数$e$很小的时候，RSA的安全性就可能受到很大的威胁，针对RSA的低加密指数，存在一系列的攻击方式，在本次实验中，我实现了三种典型的攻击低加密指数的算法。
 \subsection{低加密指数攻击}
 低加密指数攻击主要是针对加密指数$e$很小的情形，一般为$2,\ 3$。有RSA加密的流程，我可以得到$m=\sqrt[e]{kn+c},\ k\in N$，
 因此我可以尝试通过枚举$k$的取值来破解$RSA$。这种攻击算法的原理很简单，实际应用起来，算法的时间复杂度很大。
@@ -124,7 +125,7 @@ $$
     \end{cases} 
 \end{equation*}
 所以低加密指数广播攻击算法利用中国剩余定理可以得到：
-$m^e\equiv\Sigma_{i=1}^kc_it_iN_i\mod N$，进一步，我有
+$m^e\equiv\Sigma_{i=1}^kc_it_iN_i\mod N$，进一步，有
 $m=\sqrt[e]{\Sigma_{i=1}^kc_it_iN_i + KN}$。
 因此，该算法直接枚举整数$k$来完成破译。
 \subsubsection{算法分析和实验结果}
@@ -136,9 +137,19 @@ $m=\sqrt[e]{\Sigma_{i=1}^kc_it_iN_i + KN}$。
 \section{维纳攻击}
 
 \section{基于大数分解的攻击}
-
+对于RSA加密协议，如果我们能够分解公共模数$n$得到$p,\ q$，这个时候，
+我们利用$\phi(n)=(p-1)(q-1)$，可以计算出$\phi(n)$，同时，
+知道$\phi(n)$之后，我们就可以直接算出解密指数$d$，如此就可以直接破译出$m$。
 \subsection{费马分解}
-
+费马分解是一种常见的大数分解的算法，由于$n=pq$，$p,q$均为素数。不妨假设$p\geqslant q$，
+这时，我们有$n=(a-b)(a+b)$，$p=a+b,\ q=a+b$，从而有$a^2=n+b^2$。
+在这种思路下，费马分解有两种具体实现方式：
+\begin{itemize}
+    \item $a=\sqrt[2]{n+b^2}$，我们可以枚举$b$，来完成费马分解。
+    \item $b=\sqrt[2]{a^2-n}$，我们可以从$a=\lceil \sqrt{n}\rceil$枚举，每次加一，来完成费马分解。
+\end{itemize}
+我们来比较两种方法枚举次数，假设后者枚举了$t$次，则$b\sim O(\sqrt{(2t\sqrt{n}+t^2)})$。所以后者的枚举次数远远小于前者。
+在实验中，我分别尝试了两种实现方式，发现前者在有效的时间内只能够破译1组数据，但是后一种实现方式能够破译3组数据。
 \subsection{Pollard-\texorpdfstring{$p-1$}分解}
 
 \subsection{Pollard-\texorpdfstring{$\rho$}分解}
