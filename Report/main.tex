@@ -1,24 +1,30 @@
-\documentclass[11pt]{article}
+\documentclass{ctexart}
 \usepackage{amsmath, amssymb, amscd, amsthm, amsfonts}
 \usepackage{graphicx}
 \usepackage{ctex}[UTF-8]
+\usepackage{tikz}
+\usepackage{tikz-qtree}
 \usepackage{algorithmicx}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 
 \oddsidemargin 0pt
 \evensidemargin 0pt
 \marginparwidth 40pt
 \marginparsep 10pt
-\topmargin -20pt
-\headsep 10pt
 \textheight 8.7in
 \textwidth 6.65in
 \linespread{1.2}
-
-\title{RSA密码破译报告}
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} 
+\setcounter{tocdepth}{2}
+\title{	
+\normalfont \normalsize 
+\textsc{PKU EECS} \\
+\horrule{0.5pt} \\[0.4cm] 
+\huge RSA密码破译报告
+\horrule{2pt} \\[0.5cm] 
+}
 \author{冯古豪 \ \ 2000013175}
-\date{}
-
+\date{\today}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{conjecture}[theorem]{Conjecture}
@@ -30,18 +36,113 @@
 \DeclareMathOperator{\aff}{aff}
 
 \begin{document}
-
 \maketitle
+\newpage
+\tableofcontents
+\newpage
 
 \begin{abstract}
-    在这个项目中，我们实现了多种RSA攻击，并最终破解了16组RSA加密的数据。
+    RSA加密使我在通信中最常见的加密协议之一，它的加密原理主要是基于数论中的欧拉定理。
+    尽管一般情况下，破解RSA密码是NPC问题，但是对于数据上有各种缺陷的RSA密码，我依然能够破译。
+    在这个项目中，我实现了多种RSA攻击，并最终破解了17组RSA加密的数据。
 \end{abstract}
 
-\section{序言}\label{section-introduction}
-在这个项目中，我们主要实现的攻击方式主要包括：低加密指数攻击，低加密指数广播攻击，维纳攻击，共模攻击，Copper-Smith攻击
-以及基于大整数分解的攻击。其中，我们尝试的大整数分解方式主要包括：费马分解，Pollard-p-1分解，Pollard-$\rho$分解。
-
-\section{攻击原理及实验结果}
+\section{前言}\label{section-introduction}
+在这个项目中，我主要实现的攻击方式主要包括：低加密指数攻击，低加密指数广播攻击，维纳攻击，共模攻击，
+Copper-Smith攻击以及基于大整数分解的攻击。其中，我尝试的大整数分解方式主要包括：
+费马分解，Pollard-$p-1$分解，Pollard-$\rho$分解。
+最终，我成功破译了17组RSA加密的数据。
+\section{RSA加密原理}
+RSA是一种非对称的加密协议，它是基于数论中的欧拉定理设计的。下面我们会给出RSA加密的具体流程和证明。
+RSA加密算法首先生成出两个大素数$p,q$，要加密的二进制数记为$m$，公共模数$n=pq$，
+公钥$e$为任意一个小于$\phi(n)$的正整数。私钥$d$满足$e\times d\equiv 1 \mod{\phi(n)}$，
+加密后我们发送的数字$c=m^e \mod n$。在解密时，有$m=c^d\mod n$，其中，公钥为$c$公开的，
+私钥$d$只有通信两方掌握。其中，$c,\ d$分别又被成为加密指数和解密指数，$m,\ c$分别被称为明文和密文。
+在一般的实际应用中，$m,\ n$一般为1024位二进制数，公钥$d$一般取65537。
+而在实验的数据中，$m,\ n$全为1024位的二进制数，公钥$d$并未全都取值65537。
+证明RSA加密算法只要证明解密算法的正确性，即：$m=c^d \mod n$即可。
+\begin{theorem}[Euler]
+    $a,\ n$为两个互素的正整数，则$a^{\phi(n)}\equiv 1\mod{n}$，其中$\phi(n)$为欧拉函数。
+\end{theorem}
+\begin{proof}
+$\{1,\cdots,n-1\}$在模$n$的乘法下构成群$G$，考虑子群
+$$
+H=\{x,(x,n)=1\} 
+$$
+$\forall x,y\in H$，$(xy,n)=1$，从而$H$是良定义，$|H|=\phi(n)$。
+因为$a\in H$，所以根据拉格朗日定理，有：
+$$
+|a| \vert|H|=\phi(n)
+$$
+从而，$a^{\phi(n)}$为子群的单位元，所以有
+$$
+a^{\phi(n)}\equiv 1\mod{n}
+$$
+\end{proof}
+\begin{theorem}[RSA] 
+    $m=c^d \mod n$
+\end{theorem}
+\begin{proof}
+即证：$m=m^{ed}\mod n$。记$cd=k\phi(n)+1$，$m$几乎必然与$n$互素，所以由欧拉定理，$m^{\phi(n)}=tn+1$，从而$m=m^{cd} \mod n$
+\end{proof}
+\section{针对低加密数的攻击}
 \subsection{低加密指数攻击}
+低加密指数攻击主要是针对加密指数$e$很小的情形，一般为$2,\ 3$。有RSA加密的流程，我可以得到$m=\sqrt[e]{kn+c},\ k\in N$，
+因此我可以尝试通过枚举$k$的取值来破解$RSA$。这种攻击算法的原理很简单，实际应用起来，算法的时间复杂度很大。
+由于在我的实验数据中$m\sim \Theta(n)$，所以$k\sim \Theta(n^{e-1})$，这样高时间复杂度的算法无法在有效的时间内解决任何一组加密数据。
+\subsection{低加密指数广播攻击}
+当我对于同一条消息采用不同的公共模数$n$和相同的加密指数$e$进行加密时，
+我可以使用另一种十分高效的攻击算法进行破译，即低加密指数广播攻击。
+\subsubsection{算法原理}
+低加密指数广播攻击主要是利用了数论中的中国剩余定理，在一组数据包含同一条消息，
+使用多个公共模数和同一加密指数加密后的一系列密文的情况下，破译密文。下面我将介绍并证明该攻击算法。
+\begin{theorem}[中国剩余定理]
+    假设整数$m_1,\cdots,m_n$两两互素，则对任意的整数$a_1,\cdots,a_n$，对于以下方程组
+    \begin{equation*}
+        \begin{cases}
+        \ x\equiv& a_1 \mod m_1\\
+        \ x\equiv& a_2  \mod m_2 \\
+        &\cdots\\
+        \ x\equiv& a_n \mod m_n  \\
+        \end{cases} 
+    \end{equation*}
+    记$M=\Pi_{i=1}^nm_i$，$M_i=M/m_i$，$t_i$为$M_i$模$M$下的倒数，则该方程组在模$M$的意义下有唯一解$x=\Sigma_{i=1}^na_it_iM_i$
+\end{theorem}
+\begin{proof}
+    直接验证即可，对于任意的$i$，$x\equiv a_it_iM_i\mod m_i$，并且$t_iM_i\equiv 1 \mod m_i$，所以
+    $$
+    x\equiv a_it_iM_i\equiv a_i  \mod m_i
+    $$
+\end{proof}
+对于低加密指数广播攻击的情形，我有：
+\begin{equation*}
+    \begin{cases}
+    \ m^e\equiv& c_1 \mod n_1\\
+    \ m^e\equiv& c_2  \mod n_2 \\
+    &\cdots\\
+    \ m^e\equiv& c_k \mod n_k  \\
+    \end{cases} 
+\end{equation*}
+所以低加密指数广播攻击算法利用中国剩余定理可以得到：
+$m^e\equiv\Sigma_{i=1}^kc_it_iN_i\mod N$，进一步，我有
+$m=\sqrt[e]{\Sigma_{i=1}^kc_it_iN_i + KN}$。
+因此，该算法直接枚举整数$k$来完成破译。
+\subsubsection{算法分析和实验结果}
+由于实验数据基本上满足$m\sim \Theta(n)$，所以枚举的$K$的范围接近$\mathcal{O}(n^{e-k})$，为了得到有效的时间复杂度，
+该算法所需要数据的组数$k$需要满足$k\geqslant e $。
+运用这个方法，我成功破译了$e=5$的五组数据。
+\subsection{Copper-Smith攻击}
+
+\section{维纳攻击}
+
+\section{基于大数分解的攻击}
+
+\subsection{费马分解}
+
+\subsection{Pollard-\texorpdfstring{$p-1$}分解}
+
+\subsection{Pollard-\texorpdfstring{$\rho$}分解}
+
+\section{实验结果分析}
 
 \end{document}
