@@ -115,7 +115,7 @@ $$
     x\equiv a_it_iM_i\equiv a_i  \mod m_i
     $$
 \end{proof}
-对于低加密指数广播攻击的情形，我有：
+对于低加密指数广播攻击的情形，我们有：
 \begin{equation*}
     \begin{cases}
     \ m^e\equiv& c_1 \mod n_1\\
@@ -134,7 +134,6 @@ $m=\sqrt[e]{\Sigma_{i=1}^kc_it_iN_i + KN}$。
 运用这个方法，我成功破译了$e=5$的五组数据。
 \subsection{Copper-Smith攻击}
 
-\section{维纳攻击}
 
 \section{基于大数分解的攻击}
 对于RSA加密协议，如果我们能够分解公共模数$n$得到$p,\ q$，这个时候，
@@ -151,8 +150,29 @@ $m=\sqrt[e]{\Sigma_{i=1}^kc_it_iN_i + KN}$。
 我们来比较两种方法枚举次数，假设后者枚举了$t$次，则$b\sim O(\sqrt{(2t\sqrt{n}+t^2)})$。所以后者的枚举次数远远小于前者。
 在实验中，我分别尝试了两种实现方式，发现前者在有效的时间内只能够破译1组数据，但是后一种实现方式能够破译3组数据。
 \subsection{Pollard-\texorpdfstring{$p-1$}分解}
+Pollard-$p-1$分解是一种很有效的大数分解算法，这个算法主要针对的是$p-1$包含的素因子都比较小的情况。
+\begin{lemma}[Pollard-$p-1$]
+    假设$n=pq$满足$(p-1)\vert B!$且$p,q$均为素数，则令$a=2^{B!}\mod n$，$p=\gcd(a-1,n)$。
+\end{lemma}
+\begin{proof}
+    由于$p|n$，所以$a=2^{B!}\mod p$，又由于$(2,p)=1$，根据费马小定理，
+    $2^{p-1}\equiv 1\mod p$，又由于$(p-1)\vert B!$，所以，$a\equiv 2^{B!}\equiv 2^{p-1}\equiv 1\mod p$，
+    从而$p|(a-1)$。由于$a<n$，所以$q \nmid a$，得证。
+\end{proof}
+利用上述引理，Pollard-$p-1$算法先设置一个较大的$B$，然后计算出$B!,\ a$，然后计算$\gcd(a,n)$即可，若$\gcd(a,n)\neq 1$，则我们解出了$n$的
+一个素因数$p$，而后用$q=n/p$即可分解$n$。若$\gcd(a,n)=1$，则算法无效。
+在实验中，我是尝试了这种方法，我将$B$的大小设置成了200000，而后针对每一组数据的$n$分别计算$a$，最终成功破译了3组数据。
 
 \subsection{Pollard-\texorpdfstring{$\rho$}分解}
+
+\section{其他攻击}
+除了之前叙述的攻击方式之外，我还尝试一些其他的攻击方式，主要包括寻找公因数，共模攻击和维纳攻击
+\subsection{寻找质因数}
+这种攻击很简单，就是对于多组数据中的不同的$n$，我们尝试将它们两两之间求最大公因数，若存在两组$n$之间的最大公因数
+不是1，则这两组数据可以直接破译了。
+\subsection{共模攻击}
+主要针对两组数据中的明文$m$和公共模数$n$相同，但加密指数$e$不同的情况，我们分别记为$e1,\ e2$。
+\subsection{维纳攻击}
 
 \section{实验结果分析}
 
