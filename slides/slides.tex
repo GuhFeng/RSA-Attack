@@ -1,0 +1,164 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{ctex}[UTF-8]
+\usepackage[T1]{fontenc}
+\usepackage{mathabx}
+\usepackage{mathpazo}
+\usepackage{eulervm}
+\usepackage{natbib}
+
+
+\usepackage[citations,footnotes,definitionLists,hashEnumerators,smartEllipses,tightLists=false,pipeTables,tableCaptions,hybrid]{markdown}
+
+
+\markdownSetup{rendererPrototypes={
+ link = {\href{#2}{#1}},
+ headingOne = {\section{#1}},
+ headingTwo = {\subsection{#1}},
+ headingThree = {\begin{frame}\frametitle{#1}},
+ headingFour = {\begin{block}{#1}}
+}}
+
+
+\usetheme{CambridgeUS}
+\usefonttheme{serif}
+\usecolortheme{default}
+
+
+\title{RSA密码破译报告}
+\author{冯古豪}
+\institute{PKU EECS}
+
+\begin{document}
+
+\maketitle
+
+\frame{\tableofcontents}
+
+\begin{markdown}
+
+# RSA加密原理
+### 欧拉定理
+\begin{theorem}
+$a,\ n$为两个互素的正整数，则$a^{\phi(n)}\equiv 1\mod{n}$，其中$\phi(n)$为欧拉函数。
+\end{theorem}
+\end{frame}
+
+### RSA加密
+RSA加密算法首先生成出两个大素数$p,q$，要加密的二进制数记为$m$，公共模数$n=pq$，
+公钥$e$为任意一个小于$\phi(n)$的正整数。私钥$d$满足$e\times d\equiv 1 \mod{\phi(n)}$，
+加密后我们发送的数字$c=m^e \mod n$。在解密时，有$m=c^d\mod n$，其中，公钥为$c$公开的，
+私钥$d$只有通信两方掌握。
+\end{frame}
+
+# 攻击方式和实验结果
+## 基于低加密指数的攻击
+
+
+
+### 低加密指数攻击
+#### 算法原理
+
+\end{block}
+#### 实验结果
+
+\end{block}
+\end{frame}
+
+
+### 低加密指数广播攻击
+#### 算法原理
+
+\end{block}
+#### 实验结果
+
+\end{block}
+\end{frame}
+
+
+
+### Corper-Smith攻击
+#### 算法原理
+
+\end{block}
+#### 实验结果
+
+\end{block}
+\end{frame}
+
+
+
+## 维纳攻击
+### 维纳攻击
+#### 算法原理
+
+\end{block}
+#### 实验结果
+
+\end{block}
+\end{frame}
+
+
+
+## 基于大数分解的攻击
+
+### 费马分解
+#### 算法原理
+
+\end{block}
+#### 实验结果
+
+\end{block}
+\end{frame}
+
+
+
+### Pollard-$p-1$分解
+#### 算法原理
+
+\end{block}
+#### 实验结果
+
+\end{block}
+\end{frame}
+
+
+### Pollard-$\rho$分解
+#### 算法原理
+
+\end{block}
+#### 实验结果
+
+\end{block}
+\end{frame}
+
+
+## 其他攻击方式
+### 公因数分解
+#### 算法原理
+
+\end{block}
+#### 实验结果
+
+\end{block}
+\end{frame}
+
+
+### 共模攻击
+#### 算法原理
+
+\end{block}
+#### 实验结果
+
+\end{block}
+\end{frame}
+
+\end{markdown}
+
+\begin{frame}
+    \begin{center}
+        \huge{\textbf{谢谢大家}}
+    \end{center}
+\end{frame}
+
+\end{document}
