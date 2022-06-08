@@ -27,6 +27,7 @@
 \date{\today}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Definition}
 \newtheorem{conjecture}[theorem]{Conjecture}
 
 \newcommand{\rr}{\mathbb{R}}
@@ -133,8 +134,14 @@ $m=\sqrt[e]{\Sigma_{i=1}^kc_it_iN_i + KN}$。
 该算法所需要数据的组数$k$需要满足$k\geqslant e $。
 运用这个方法，我成功破译了$e=5$的五组数据。
 \subsection{Copper-Smith攻击}
-
-
+这种攻击方式主要是针对解密指数$e=3$的情形，并且假设我们已知了$m$的高位数据。
+我们假设$m=M+x$，其中，$x$为我们要求解的低位数据。我们有
+$$
+(M+x)^3-c\equiv 0\mod n
+$$
+利用Copper-Smith算法，我们在较小的时间复杂度内解出满足条件$x^3-c\equiv 0\mod n$的最小的$x$，
+然后我们利用高位的数据就可以破译出$m$。
+利用这种算法，并且结合数据的加密规则，我成功地破译了$e=3$的三组数据。
 \section{基于大数分解的攻击}
 对于RSA加密协议，如果我们能够分解公共模数$n$得到$p,\ q$，这个时候，
 我们利用$\phi(n)=(p-1)(q-1)$，可以计算出$\phi(n)$，同时，
@@ -165,6 +172,8 @@ Pollard-$p-1$分解是一种很有效的大数分解算法，这个算法主要�
 
 \subsection{Pollard-\texorpdfstring{$\rho$}分解}
 Pollard-$\rho$算法是一种比较有效的大数分解算法。算法的过程很简单，首先，我们随机生成三个数$x,y,c$，而后，
+然后我们不断更新迭代$y=y^2+c\mod n$，然后计算$x-y,n$是否有公因数，不断循环直到找到非平凡的公因数$p$，
+然后利用$n=pq$，完成对$n$的分解。
 
 
 \section{其他攻击}
@@ -190,7 +199,30 @@ Pollard-$\rho$算法是一种比较有效的大数分解算法。算法的过程
 从而基于上述引理，我们可以得到共模攻击算法，首先利用欧几里得算法计算出$s,t$，计算出$c_1^sc_2^t\mod n$即可。
 利用这个算法，我成功破译了两组数据。
 \subsection{维纳攻击}
-
-\section{实验结果分析}
+维纳攻击主要是针对解密指数$d$比较小的情况，并且这种攻击算法还要求素因子$p,\ q$比较接近。
+这种攻击算法的核心在于使用连分数逼近的方法解出$\phi(n)$，从而得到$p,q$。
+这种攻击算法的理论基础，也就是为什么我们能够通过连分数逼近的方法得到$\phi(n)$在于$Legendre$定理。
+\begin{definition}[连分数逼近]
+    设$a\in R$的连分数表示为$[a_0,a_1,\cdots,a_n,\cdots]$，则$\forall n$，$[a_0,a_1,\cdots,a_n]$为$a$的连分数逼近。
+\end{definition}
+\begin{theorem}[Legendre]
+    若满足$\vert\alpha-\frac{p}{q}\vert<\frac{1}{q^2},\ (p,q)=1$，则$\frac{p}{q}$是$\alpha$的连分数逼近。
+\end{theorem}
+基于勒让德定理，我们就可以得到维纳攻击。
+首先定义$G=\gcd(p-1,q-1), \lambda(n)=\frac{\phi(n)}{G}$，我们有$ed=\frac{K}{G}\phi(n)+1$，其中，$K$为未知常数。
+将$K,G$约分得到$k,g$，这样我们可以得到
+$$
+\frac{e}{n}=\frac{k}{dg}\frac{\phi(n)}{n}+\frac{1}{dn}
+$$
+这样我们有$\frac{e}{n}\thickapprox \frac{k}{dg}$，
+我们用$\frac{e}{n}$的连分数展开逼近$\frac{k}{dg}$，得到$dg,k$之后，带入之前的式子求得$\phi(n)$，然后我们可以利用韦达定理
+解出$n=pq$，这样就破译了RSA加密数据。
+\begin{theorem}[维纳攻击]
+    当数据满足$q<p<2q$，$d<\frac{1}{3}n^{\frac{1}{4}}$的条件下，维纳攻击一定能够解出$p,q$。
+\end{theorem}
+在本次实验的数据中，数据均没有满足维纳攻击的条件，所以我使用维纳攻击没有破译出任何数据。
+\section{实现细节}
+在具体实现中，我主要使用python语言实现，主要利用了gmpy2的软件包进行大数运算，针对Copper-Smith攻击，
+我主要使用了Sage语言进行实现。
 
 \end{document}
