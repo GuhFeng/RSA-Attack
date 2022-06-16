@@ -6,6 +6,10 @@
 \usepackage{tikz-qtree}
 \usepackage{algorithmicx}
 \usepackage[hidelinks]{hyperref}
+\usepackage{soul}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs}
+\usepackage{multirow}
 
 \oddsidemargin 0pt
 \evensidemargin 0pt
@@ -44,7 +48,7 @@
 
 \begin{abstract}
     RSA加密使我在通信中最常见的加密协议之一，它的加密原理主要是基于数论中的欧拉定理。
-    尽管一般情况下，破解RSA密码是NPC问题，但是对于数据上有各种缺陷的RSA密码，我依然能够破译。
+    尽管一般情况下，破解RSA密码是NPC问题，但是对于数据上有各种缺陷的RSA密码，我们依然能够破译。
     在这个项目中，我实现了多种RSA攻击，并最终破解了17组RSA加密的数据。
 \end{abstract}
 
@@ -84,7 +88,8 @@ $$
     $m=c^d \mod n$
 \end{theorem}
 \begin{proof}
-即证：$m=m^{ed}\mod n$。记$cd=k\phi(n)+1$，$m$几乎必然与$n$互素，所以由欧拉定理，$m^{\phi(n)}=tn+1$，从而$m=m^{cd} \mod n$
+即证：$m=m^{ed}\mod n$。记$cd=k\phi(n)+1$，当$m$与$n$互素的时候，由欧拉定理，$m^{\phi(n)}=tn+1$，从而$m=m^{cd} \mod n$；
+当$m$与$n$不互素的时候，除掉公因数后，该式子依然成立。
 \end{proof}
 \section{针对低加密数的攻击}
 当RSA加密指数$e$很小的时候，RSA的安全性就可能受到很大的威胁，针对RSA的低加密指数，存在一系列的攻击方式，在本次实验中，我实现了三种典型的攻击低加密指数的算法。
@@ -171,10 +176,29 @@ Pollard-$p-1$分解是一种很有效的大数分解算法，这个算法主要�
 在实验中，我是尝试了这种方法，我将$B$的大小设置成了200000，而后针对每一组数据的$n$分别计算$a$，最终成功破译了3组数据。
 
 \subsection{Pollard-\texorpdfstring{$\rho$}分解}
-Pollard-$\rho$算法是一种比较有效的大数分解算法。算法的过程很简单，首先，我们随机生成三个数$x,y,c$，而后，
-然后我们不断更新迭代$y=y^2+c\mod n$，然后计算$x-y,n$是否有公因数，不断循环直到找到非平凡的公因数$p$，
-然后利用$n=pq$，完成对$n$的分解。
+Pollard-$\rho$算法是一种比较有效的大数分解算法。这个算法的核心在于生成一个伪随机数列与$n$求解公因数，来分解$n$。
+算法随机生成两个数$y,c$，
+然后我们不断更新迭代$y=f(y)=y^2+c\mod n$，
+在$y$的迭代过程中，在模$n$的意义下是最终会构成一个环。
+\begin{lemma}[Pollard-$\rho$]
+    如果$|y_i-y_j|\equiv 0\mod p$，则$|y_{i+1}-y_{j+1}|\equiv 0 \mod p$。
+\end{lemma}
+\begin{proof}
+    \ \ \ \newline
+    \begin{center}
+        我们注意到$|f(y_i)-f(y_j)|=|y_i+y_j|\times|y_i-y_j|$，\\
+    从而如果$|y_i-y_j|\equiv 0\mod p$，则$|y_{i+1}-y_{j+1}|\equiv 0 \mod p$。
+    \end{center}
+\end{proof}
 
+根据上述引理，如果环上某一些距离$d$的两个点满足$p\mid  |y_i-y_j|$则环上任意两个距离为$d$的点满足要求，
+所以在实际应用时，我们只需要对每一个距离$d$做一次判定即可。
+该算法使用经典的$Floyd$算法来判定环，开始随机生成三个数 $x,y,c$，
+迭代过程中，$x$每迭代一次，$y$迭代两次，并计算 $|x-y| \mod n$ 与$n$公
+因数，直到找到$n$的非平凡因子。
+该算法的复杂度比较依赖于随机数生成器的随机性，
+算法期望复杂度为$\mathcal{O}(n^{\frac{1}{4}}\log n)$。
+在实验中，Pollard-$\rho$算法成功破译了三组数据。
 
 \section{其他攻击}
 除了之前叙述的攻击方式之外，我还尝试一些其他的攻击方式，主要包括寻找公因数，共模攻击和维纳攻击
@@ -224,6 +248,29 @@ $$
 \section{实现细节和实验结果}
 在具体实现中，我主要使用python语言实现，主要利用了gmpy2的软件包进行大数运算，针对Copper-Smith攻击，
 我主要使用了Sage-math语言进行实现。在Sage-math中，这个软件包实现了许多数论的经典算法，我主要使用了其中的Copper-Smith算法。
+\begin{table*}[t]
+    \begin{tabular}{c|c|ccccc}
+    \toprule[1pt]
+    
+    \multicolumn{2}{c|}{方法}& \multicolumn{5}{c}{数据点} \\
+    \hline
 
+    \multirow{3}{*}{基于低加密指数的攻击} &低加密指数攻击&\multicolumn{5}{c}{无}   \\
+    &低加密指数广播攻击&4&5&7&13&18\\
+    &Copper-Smith攻击& &0&6&17&  \\
+    \hline
+    \multirow{3}{*}{基于大数分解的攻击} &费马分解& \multicolumn{5}{c}{8\ \ \ 10} \\
+    &Pollard-$p-1$分解& &1&3&12& \\
+    &Pollard-$\rho$分解& \multicolumn{5}{c}{3\ \ \ 12}\\
+    \hline
+    \multirow{3}{*}{其他攻击} &公因数分解& \multicolumn{5}{c}{2\ \ \ 19}\\
+    &共模攻击&\multicolumn{5}{c}{11\ \ \ 14}\\
+    &维纳攻击&\multicolumn{5}{c}{无}\\
+    \bottomrule[1pt]
+    \end{tabular}
+    \centering
+    \caption{实验结果}
+    \label{ablation}
+\end{table*}
 
 \end{document}
